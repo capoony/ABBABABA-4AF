@@ -5,7 +5,7 @@ from optparse import OptionParser, OptionGroup
 #Author: Martin Kapun
 
 #########################################################   HELP   #########################################################################
-usage="python3 %prog --input file --output file "
+usage="python3 %prog --AF file.af --SNPs 500 --Order 4,5,6,7 --Output file "
 parser = OptionParser(usage=usage)
 group=OptionGroup(parser,'''
           /\
@@ -19,10 +19,10 @@ group=OptionGroup(parser,'''
 
 #########################################################   CODE   #########################################################################
 
-parser.add_option("--AlleleFrequencies", dest="AF", help="Input file; First three columns: Chrom, Pos, MajorAllele/MinorAllele")
-parser.add_option("--output", dest="OUT", help="Output prefix")
-parser.add_option("--order", dest="ORDER", help="column positions of populations H1,H2,H3,H4 in input file")
-parser.add_option("--SNPs", dest="SNP", help="number of SNPS (overrules window and stepsize)",default="NA")
+parser.add_option("--AF", dest="AF", help="Input file; First three columns: Chrom, Pos, MajorAllele/MinorAllele")
+parser.add_option("--Output", dest="OUT", help="Output prefix")
+parser.add_option("--Order", dest="ORDER", help="column positions of populations H1,H2,H3,H4 in input file")
+parser.add_option("--SNPs", dest="SNP", help="number of SNPS",default="100")
 
 (options, args) = parser.parse_args()
 parser.add_option_group(group)
@@ -46,7 +46,6 @@ def D2(x,XL,YL,fXL,fYL,N):
     fXL[N].append(X)
     YL.append(Y)
     fYL[N].append(Y)
-
 
 
 def blockJackEven(fx,fy,D):
