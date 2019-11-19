@@ -38,7 +38,7 @@ The ususal starting point for analyses of geneflow with ABBABABA-4AF is the gene
 A typical command line for SYNC2AF.py looks like this:
 
 ```bash
-python3 SYNC2AF.py --sync input.sync > output.af
+python3 SYNC2AF.py --sync input.sync.gz | gzip > output.af.gz
 ```
 
 The output file is tab-delimited where the first three columns are "Chromosome", "Position" and "Major/Minor alleles", respectively. These are followed by the allele frequencies of the major allele for a given position for each of the populations in the sync file. Note, that only the two most common alleles are considered and counts of other alleles at tri- or tetra-allelic position are ignored.
@@ -52,7 +52,7 @@ This file can then be used as the input for the ABBA-BABA test. ABBABABA-4AF.py 
 A typical command line for ABBABABA-4AF.py (with focal populations in the 4<sup>th</sup>, 8<sup>th</sup>, 9<sup>th</sup> and 10<sup>th</sup> columns of the input) looks like this:
 
 ```bash
-python3 ABBABABA-4AF.py --AF output.af --SNPs 500 --Order 3,7,8,9 --Output output-file
+python3 ABBABABA-4AF.py --AF output.af.gz --SNPs 500 --Order 3,7,8,9 --Output output-file
 ```
 ### Description of Output Files
 
