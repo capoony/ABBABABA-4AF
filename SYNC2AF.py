@@ -26,10 +26,8 @@ def sync2freqh(x,ALL):
     counts=[int(X) for X in x.split(":")[:4]]
     if sum(counts)==0:
         return ({"A":0.0,"T":0.0,"C":0.0,"G":0.0},0)
-    CO=dict(zip(*[nuc,counts]))
-    for k,v in CO.items():
-        if k not in ALL:
-            del CO[k]
+    CO={k:v for k,v in list(zip(*[nuc,counts]))if k in ALL}
+
     h=d(float)
     if sum(CO.values())==0:
         return "na","na"
@@ -44,7 +42,7 @@ def all_alleles(v):
     nuc=v.replace("N","")
     if len(nuc)==0 or len(set(nuc))<2:
         return "NA"
-    return zip(*Counter(nuc).most_common())[0]
+    return list(zip(*Counter(nuc).most_common()))[0]
 
 def sync2string(x):
     ''' convert sync format to string of nucleotides  where x is a string in sync format '''
