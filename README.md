@@ -27,22 +27,68 @@ Equivalent to Green *et al.*’s (2010) test, Durand *et al.* (2011; *D*<sub>D</
 
 <img src=/images/DS.png height="50" />
 
-## ABBA-BABA-4-AF
+## ABBABABA-4AF
 
-The python script "ABBA-BABA-4-AF.py" is a new implementation of the ABBA-BABA test for gene flow based on the latter two approaches and calculates both genome-wide and window-wise estimates of *D* based on a given (fixed) number of SNPs per window. A 2D matrix of allele frequencies is used as the input where columns represent samples and rows SNP positions. Following Green *et al.* (2011), the software also calculates *z*-scores based on jackknifing using a blocked, even *m*-delete jackknife procedure, where *m* is the group size of observations removed from the sample for jackknifing (Busing et al. 1999). See our corresponding manuscript "*Genomic signals of admixture as well as reinforcement between two sister species of European sepsid flies in sympatry vs. parapatry*" (Giessen *et al.* 2020) for more details on the approach and differences to other methods
+The python script "ABBABABA-4AF.py" is a new implementation of the ABBA-BABA test for gene flow based on the latter two approaches and calculates both genome-wide and window-wise estimates of *D* based on a given (fixed) number of SNPs per window. A 2D matrix of allele frequencies is used as the input where columns represent samples and rows SNP positions. Following Green *et al.* (2011), the software also calculates *z*-scores based on jackknifing using a blocked, even *m*-delete jackknife procedure, where *m* is the group size of observations removed from the sample for jackknifing (Busing et al. 1999). See our corresponding manuscript "*Genomic signals of admixture as well as reinforcement between two sister species of European sepsid flies in sympatry vs. parapatry*" (Giessen *et al.* 2020) for more details on the approach and differences to other methods
 
 ## Workflow
 
-The ususal starting point for the analysis of geneflow with ABBA-BABA-4-AF is the generation of an Allele frequency matrix file. This can be done, for example, by converting a SNP file in the SYNC file format (Kofler *et al.* 2011) to major allele frequencies using the provided python script "
+The ususal starting point for the analysis of geneflow with ABBABABA-4AF is the generation of an Allele frequency matrix file. This can be done, for example, by converting a SNP file in the SYNC file format (Kofler *et al.* 2011) to major allele frequencies using the provided python script "SYNC2AF.py". Files in the SYNC file format are tab-delimited, where the first three columns are "Chromosome", "Position" and "Reference Allele", respectively. These are followed by columns of allele counts for one or multiple synchronized population samples. The allele counts are encoded in the form: "A:T:C:G:N:Del". For example, a population with 50% A/G polymorphism at a read depth 20, would be encoded as: "10:0:0:10:0:0".
+
+A typical command line for SYNC2AF.py looks like this:
+
+```python
+python3 SYNC2AF.py \
+--sync input.sync \
+> output.af
+```
+
+The output file is tab-delimited where the first three columns are "Chromosome", "Position" and "Major/Minor alleles", respectively. These are followed by the allele frequencies of the major allele for a given position for each of the populations in the sync file. Note, that only the two most common alleles are considered and counts of other alleles at tri- or tetra-allelic position are ignored.
+
+This file can then be used as the input for the ABBA-BABA test. ABBABABA-4AF.py requires the following input files and parameters:
+* AlleleFrequencies: The 2D matrix of allele frequencies as described above
+* SNPs: The number of SNPs in each bin per contig/chromosomal arm/chromosome
+* Order: The column position of the four populations (H1,H2,H3 and H4) considered for the ABBA-BABA test. Note, that Python uses zero-based indexing. Thus, if you want to used the populations in the 4<sup>th</sup>, 8<sup>th</sup>, 9<sup>th</sup> and 10<sup>th</sup> columns as H1, H2, H3 and H4, you will need to provide the comma-separated list 3,7,8,9 as input.
+* Output: You need to provide an output-prefix which will then be used to generate two output files with the endings "\_GenomeWide.D" and "\_XXXSNPs.D", where XXX is replaced by the number of SNPs provided above.
+
+A typical command line for ABBABABA-4AF.py (with focal populations in the 4<sup>th</sup>, 8<sup>th</sup>, 9<sup>th</sup> and 10<sup>th</sup> columns of the input) looks like this:
+
+```python
+python3 ABBABABA-4AF.py \
+--AF output.af \
+--SNPs 500 \
+--Order 3,7,8,9 \
+--output output-file
+```
+### Description of Output Files
+
+#### output-file_500SNPs.D
+This file is the output containing window-wise estimates of *D*<sub>S</sub> and *D*<sub>D</sub>. Here the columns are:
++ Chromosome
++ Start Position
++ Average Position
++ End Position
++ Window Size in basepairs
++ Number of SNPs in Window
++ Soraggi's *D*
++ Durand's *D*
+
+#### output-file_genome-wide.D
+This file is the output containing genome-wide estimates of *D*<sub>S</sub> and *D*<sub>D</sub> as well as jackknifing variance and *z*-scores. Here the columns are:
++ Analysis Method (Soraggi or Durand)
++ Genome-wide estimate of *D*
++ Jackknife estimate of *D*
++ Jackknife estimate of the variance of *D*
++ *Z*-score
 
 ## References
 
-@busingDeletemJackknifeUnequal1999
+Busing, F.M.T.A., Meijer, E. & Leeden, R.V.D. 1999. Delete-m Jackknife for Unequal m. Statistics and Computing 9: 3–8.
 
-@greenDraftSequenceNeandertal2010
+Durand, E.Y., Patterson, N., Reich, D. & Slatkin, M. 2011. Testing for Ancient Admixture between Closely Related Populations. Mol Biol Evol 28: 2239–2252.
 
-@durandTestingAncientAdmixture2011
+Green, R.E., Krause, J., Briggs, A.W., Maricic, T., Stenzel, U., Kircher, M., et al. 2010. A Draft Sequence of the Neandertal Genome. Science 328: 710–722.
 
-@koflerPoPoolation2IdentifyingDifferentiation2011
+Kofler, R., Pandey, R.V. & Schlotterer, C. 2011. PoPoolation2: identifying differentiation between populations using sequencing of pooled DNA samples (Pool-Seq). Bioinformatics 27: 3435–3436.
 
-@soraggiPowerfulInferenceDStatistic2018
+Soraggi, S., Wiuf, C. & Albrechtsen, A. 2018. Powerful Inference with the D-Statistic on Low-Coverage Whole-Genome Data. G3: Genes, Genomes, Genetics 8: 551–566.

@@ -7,7 +7,8 @@ from optparse import OptionParser, OptionGroup
 #########################################################   HELP   #########################################################################
 usage="python %prog --sync input.sync > output.af "
 parser = OptionParser(usage=usage)
-group=OptionGroup(parser,'This script calculates allele frequencies of the major allele in biallelic SNPs. The input sync file can be gzipped. Have fun, Ramon!')
+group=OptionGroup(parser,'''
+''')
 
 #########################################################   CODE   #########################################################################
 
@@ -16,14 +17,13 @@ parser.add_option("--sync", dest="IN", help="Input file")
 (options, args) = parser.parse_args()
 parser.add_option_group(group)
 
-
 def sync2freqh(x,ALL):
     ''' convert string in SYNC format to dictionary of freqencies where x is a string in sync format'''
     from collections import defaultdict as d
     if x==".:.:.:.:.:." or x=="0:0:0:0:0:0":
         return "na","na"
     nuc=["A","T","C","G"]
-    counts=map(int,x.split(":")[:4])
+    counts=[int(X) for X in x.split(":")[:4]]
     if sum(counts)==0:
         return ({"A":0.0,"T":0.0,"C":0.0,"G":0.0},0)
     CO=dict(zip(*[nuc,counts]))
@@ -52,40 +52,49 @@ def sync2string(x):
     alleles=["A","T","C","G"]
     if x==".:.:.:.:.:." or x=="0:0:0:0:0:0":
         return "na"
-    ah=dict(zip(alleles,map(int,x.split(":")[:4])))
+    ah=dict(zip(alleles,[int(X) for X in x.split(":")[:4]]))
     for k,v in ah.items():
         string+=v*k
     return string
 
 def load_data(x):
-    ''' import data either from a gzipped or or uncrompessed file or from STDIN'''
-    import gzip
-    if x=="-":
-        y=sys.stdin
-    elif x.endswith(".gz"):
-        y=gzip.open(x,"r")
-    else:
-        y=open(x,"r")
-    return y
+  ''' import data either from a gzipped or or uncrompessed file or from STDIN'''
+  import gzip
+  if x=="-":
+      y=sys.stdin
+  elif x.endswith(".gz"):
+      y=gzip.open(x,"rt", encoding="latin-1")
+  else:
+      y=open(x,"r", encoding="latin-1")
+  return y
 
 for l in load_data(options.IN):
-    #print l
-    a=l.split()
+
+    # split in columns
+    a=l.rstrip().split()
     ID=a[0]+":"+a[1]
+
+    ## make long string of all summed-up alleles across all populations
     AlleleStrings=""
     for pop in a[3:]:
         Counts=sync2string(pop)
         if Counts=="na":
             continue
         AlleleStrings+=Counts
-    MA=all_alleles(AlleleStrings)
+
+    ## identify two most common alleles
+    MA=all_alleles(AlleleStrings)[:2]
+
+    ## skip if position invariate
     if MA=="NA":
         continue
     fl=[]
+
+    ## calculate and print frequencies of major alleles
     for pop in a[3:]:
-        FH=sync2freqh(pop,MA[:2])
+        FH=sync2freqh(pop,MA)
         if "na" in FH:
             fl.append("NA")
             continue
         fl.append(FH[0][MA[0]])
-    print "\t".join(a[:2])+"\t"+"/".join(MA[:2])+"\t"+"\t".join(map(str,fl))
+    print("\t".join(a[:2])+"\t"+"/".join(MA[:2])+"\t"+"\t".join([str(x) for x in fl]))
