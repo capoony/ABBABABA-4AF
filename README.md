@@ -19,7 +19,7 @@ This approach uses haplotype sequencing data and counts the occurence of either 
 
 <img src=/images/DG.png height="55" />
 
-Thus count(ABBA)-count(BABA), scaled by the total number of counts (*D*<sub>G</sub>; see above) should equal 0. However, if there is geneflow from H3 to H2, we expect an excess of ABBA, resulting in negative values of *D*<sub>G</sub>.
+Thus count(ABBA)-count(BABA), scaled by the total number of counts (*D*<sub>G</sub>; see above) should equal 0. However, if there is geneflow from H3 to H2, we expect an excess of ABBA, resulting in positive values of *D*<sub>G</sub>.
 
 Equivalent to Green *et al.*’s (2010) test, Durand *et al.* (2011; *D*<sub>D</sub>) and Soraggi *et al.* (2018; *D*<sub>S</sub>) recently proposed using allele frequencies instead of counts. Here, *p*<sub>ij</sub> is the frequency of the derived allele B at the *i*<sup>th</sup> locus in the *j*<sup>th</sup> population in the generic phylogeny (P1, P2, P3 or P4).
 
