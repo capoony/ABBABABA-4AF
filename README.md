@@ -37,7 +37,7 @@ The ususal starting point for the analysis of geneflow with ABBABABA-4AF is the 
 
 A typical command line for SYNC2AF.py looks like this:
 
-```python
+```python3
 python3 SYNC2AF.py \
 --sync input.sync \
 > output.af
@@ -53,7 +53,7 @@ This file can then be used as the input for the ABBA-BABA test. ABBABABA-4AF.py 
 
 A typical command line for ABBABABA-4AF.py (with focal populations in the 4<sup>th</sup>, 8<sup>th</sup>, 9<sup>th</sup> and 10<sup>th</sup> columns of the input) looks like this:
 
-```python
+```python3
 python3 ABBABABA-4AF.py \
 --AF output.af \
 --SNPs 500 \
