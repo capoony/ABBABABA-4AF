@@ -45,7 +45,7 @@ The output file is tab-delimited where the first three columns are "Chromosome",
 
 This file can then be used as the input for the ABBA-BABA test. ABBABABA-4AF.py requires the following input files and parameters:
 * AlleleFrequencies: The 2D matrix of allele frequencies as described above
-* SNPs: The number of SNPs in each bin per contig or chromosome
+* SNPs: The number of SNPs in each window per contig or chromosome
 * Order: The column position of the four populations (H1,H2,H3 and H4) considered for the ABBA-BABA test. Note, that Python uses zero-based indexing. Thus, if you want to use the populations in the 4<sup>th</sup>, 8<sup>th</sup>, 9<sup>th</sup> and 10<sup>th</sup> columns as H1, H2, H3 and H4, you will need to provide a comma-separated list 3,7,8,9 as input.
 * Output: You need to provide an output-prefix which will then be used to generate two output files with the endings "\_GenomeWide.D" and "\_XXXSNPs.D", where XXX is replaced by the number of SNPs provided above.
 
