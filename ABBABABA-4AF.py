@@ -15,7 +15,7 @@ group=OptionGroup(parser,'''
       /\   \   \
      /  \   \   \
     H1  H2  H3  H4
-    
+
     A   B   B   A
     B   A   B   A
 ''')
@@ -25,7 +25,8 @@ group=OptionGroup(parser,'''
 parser.add_option("--AF", dest="AF", help="Input file; First three columns: Chrom, Pos, MajorAllele/MinorAllele")
 parser.add_option("--Output", dest="OUT", help="Output prefix")
 parser.add_option("--Order", dest="ORDER", help="column positions of populations H1,H2,H3,H4 in input file")
-parser.add_option("--SNPs", dest="SNP", help="number of SNPS",default="100")
+parser.add_option("--SNPs", dest="SNP", help="number of SNPS",default="NA")
+parser.add_option("--window", dest="window", help="window size in bp",default="NA")
 
 (options, args) = parser.parse_args()
 parser.add_option_group(group)
@@ -90,7 +91,9 @@ def blockJackEven(fx,fy,D):
 def test0(x,y,z):
     ''' calculate the ratio of x and y if bin contains enough SNPs and if y is not 0, then append to list z '''
 
-    if sum(y)==0 or len(x)!=SNPs:
+    if sum(y)==0:
+        xy="NA"
+    elif options.SNP!="NA" and len(x)!=SNPs:
         xy="NA"
     else:
         xy=str(sum(x)/float(sum(y)))
@@ -111,8 +114,11 @@ def load_data(x):
       y=open(x,"r", encoding="latin-1")
   return y
 
+if options.SNP != "NA":
+    SNPs=int(options.SNP)
+else:
+    WS=int(options.window)
 
-SNPs=int(options.SNP)
 ORDER=[int(x) for x in options.ORDER.split(",")]
 
 Chr=""
@@ -132,22 +138,28 @@ SNPY1,SNPY2=[],[]
 D1L,D2L=[],[]
 
 ## open Outputfile for window-wise estimates
-outWindow=open(options.OUT+"_"+str(SNPs)+"SNPs.D","w")
+outWindow=open(options.OUT,"w")
 
 ## Counter of SNP groups
-N=0
+if options.SNP!="NA":
+    N=0
+else:
+    N=""
 
 outWindow.write("Chromosome\tStartPos\tAveragePos\tEndPos\tWindowSize\tNoOfSNPs\tSoraggi\tDurand\n")
 
 for l in load_data(options.AF):
     a=l.rstrip().split()
 
+    if options.window!="NA" and N=="":
+        N=round(float(a[1])/WS,0)
+
     ## only keep allele frequencies of populations used for ABBA BABA and retain order
     AFs=[a[x] for x in ORDER]
     if Chr=="":
         Chr=a[0]
 
-    ## continue if one AL missing
+    ## continue if one AF missing
     if "NA" in AFs or "na" in AFs:
         continue
 
@@ -161,8 +173,22 @@ for l in load_data(options.AF):
     if AFs[-1]<0.5:
         AFs=[1-x for x in AFs]
 
+
+    # test if condition for new window:
+
+    if options.SNP!="NA":
+        if len(SNPX1)==SNPs:
+            cond=True
+        else:
+            cond=False
+    else:
+        if round(float(a[1])/WS,0)!=N:
+            cond=True
+        else:
+            cond=False
+
     # if the end of a window is reached or a new contig starts, calculate the window-specific D, print it to the outputfile and move on
-    if Chr!=a[0] or len(SNPX1)==SNPs:
+    if Chr!=a[0] or cond:
 
         #print(Chr,a[0],len(SNPX1),SNPwindows)
 
@@ -192,7 +218,10 @@ for l in load_data(options.AF):
         D2([float(x) for x in AFs],SNPX2,SNPY2,fSNPX2,fSNPY2,N)
 
         ## increase counter by one to start a new group
-        N+=1
+        if options.SNP!="NA":
+            N+=1
+        else:
+            N=round(float(a[1])/float(options.window),0)
 
         continue
 
@@ -218,7 +247,7 @@ if len(SNPX1)!=0:
 ## open Outputfile for genome-wide estimates
 outGW=open(options.OUT+"_GenomeWide.D","w")
 
-### calculate Jacknife stat
+## calculate Jacknife stat
 outGW.write("Method\tDest\tDjackEst\tDjackVar\tZ\n")
 
 Z1=blockJackEven(fSNPX1,fSNPY1,D1L)
