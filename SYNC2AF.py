@@ -13,11 +13,12 @@ group=OptionGroup(parser,'''
 #########################################################   CODE   #########################################################################
 
 parser.add_option("--sync", dest="IN", help="Input file")
+parser.add_option("--MinCov", dest="mc", help="minor coverage threshold",default=10)
 
 (options, args) = parser.parse_args()
 parser.add_option_group(group)
 
-def sync2freqh(x,ALL):
+def sync2freqh(x,ALL,mc):
     ''' convert string in SYNC format to dictionary of freqencies where x is a string in sync format'''
     from collections import defaultdict as d
     if x==".:.:.:.:.:." or x=="0:0:0:0:0:0":
@@ -29,7 +30,7 @@ def sync2freqh(x,ALL):
     CO={k:v for k,v in list(zip(*[nuc,counts]))if k in ALL}
 
     h=d(float)
-    if sum(CO.values())==0:
+    if sum(CO.values())<mc:
         return "na","na"
     for k,v in CO.items():
         h[k]=v/float(sum(CO.values()))
@@ -90,7 +91,7 @@ for l in load_data(options.IN):
 
     ## calculate and print frequencies of major alleles
     for pop in a[3:]:
-        FH=sync2freqh(pop,MA)
+        FH=sync2freqh(pop,MA,int(options.mc))
         if "na" in FH:
             fl.append("NA")
             continue
